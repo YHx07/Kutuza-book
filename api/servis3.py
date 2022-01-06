@@ -1,4 +1,5 @@
-import pandas as pd
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,21 +37,39 @@ class PostgresConfiguration:
         return f'postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
 
 
+def show(table):
+    if table:
+        print("Data:")
+        print("+--------------+")
+        for text in table:
+            print(text.id, text.name, text.dttm, text.workplace)
+        print("+--------------+")
+    else:
+        print("Error: no data")
+
+
+app = FastAPI()
 pg = PostgresConfiguration()
 engine = sql.create_engine(pg.postgres_db_path)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-data = pd.read_csv("data/data.csv", header=None, names=['id', 'name', 'dttm', 'workplace'])
-data.to_sql('info', engine, if_exists='replace')
 
-print("Recorded csv to table in postgre........")
 
-ready_table = session.query(User).all()
-if ready_table:
-    print("================ DATA =================")
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+@app.exception_handler(StarletteHTTPException)
+def custom_http_exception_handler(request, exc):
+    return JSONResponse({"Error:404": "Wrong request address"})
+
+
+@app.get('/')
+def get_all_items():
+    ready_table = session.query(User).all()
     for text in ready_table:
         print(text)
-    print("=========================== Data is exist ===========================")
-else:
-    print("Error: data not loaded")
+
+
+@app.get('/health')
+def heath():
+    return 200

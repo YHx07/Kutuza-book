@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS booking (
   name varchar(250) NOT NULL,
   dttm varchar(250) NOT NULL,
   workplace varchar(250) NOT NULL,
-  PRIMARY KEY (product_id)
+  PRIMARY KEY (id)
 );
