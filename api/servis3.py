@@ -1,5 +1,8 @@
-from fastapi import FastAPI, status
+import os
+import pandas as pd
+from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -49,12 +52,12 @@ def show(table):
 
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
 pg = PostgresConfiguration()
 engine = sql.create_engine(pg.postgres_db_path)
 Session = sessionmaker(bind=engine)
 session = Session()
-
-
 
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -64,11 +67,17 @@ def custom_http_exception_handler(request, exc):
 
 
 @app.get('/')
-def get_all_items():
-    ready_table = session.query(User).all()
-    for text in ready_table:
+async def get_all_items(request: Request):
+    table = session.query(User).all()
+    for text in table:
         print(text)
 
+    df = pd.read_sql('SELECT * FROM info', engine)
+
+    return templates.TemplateResponse(
+        'df_representation.html',
+        {'request': request, 'data': df.to_html()}
+    )
 
 @app.get('/health')
 def heath():

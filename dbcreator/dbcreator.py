@@ -41,16 +41,21 @@ engine = sql.create_engine(pg.postgres_db_path)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-data = pd.read_csv("data/data.csv", header=None, names=['id', 'name', 'dttm', 'workplace'])
-data.to_sql('info', engine, if_exists='replace')
+data = pd.read_csv(
+    "data/data.csv",
+    header=None,
+    names=['id', 'name', 'dttm', 'workplace']
+)
+data.to_sql('info', engine, index=False, if_exists='append')
 
 print("Recorded csv to table in postgre........")
 
-ready_table = session.query(User).all()
-if ready_table:
+table = session.query(User).all()
+
+if table:
     print("================ DATA =================")
-    for text in ready_table:
+    for text in table:
         print(text)
-    print("=========================== Data is exist ===========================")
+    print("============ Data is exist ============")
 else:
     print("Error: data not loaded")

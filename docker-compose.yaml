@@ -32,3 +32,13 @@ services:
         command: uvicorn servis3:app --host 0.0.0.0 --port 4545
         depends_on:
           - db
+
+    bot:
+        restart: unless-stopped
+        build:
+          context: ./bot
+          dockerfile: Dockerfile
+        container_name: bot
+        ports:
+          - "8000:8000"
+        command: python main.py
