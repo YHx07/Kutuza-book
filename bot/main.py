@@ -60,11 +60,9 @@ bot = telebot.TeleBot(API_TOKEN)
 calendar = Calendar(language=RUSSIAN_LANGUAGE)
 calendar_1_callback = CallbackData("calendar_1", "action", "year", "month", "day")
 
-username = None
 
 @bot.message_handler(commands=["start"])
 def start(message, res=False):
-    global username
 
     username = message.from_user.first_name
 
@@ -72,7 +70,7 @@ def start(message, res=False):
 
     # Две кнопки
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("Свободные места")
+    item1 = types.KeyboardButton("Занятые места")
     item2 = types.KeyboardButton("Забронировать место")
     markup.add(item1)
     markup.add(item2)
@@ -85,11 +83,10 @@ def start(message, res=False):
 def handle_text(message):
     now = datetime.datetime.now()  # Get the current date
 
-    if message.text.strip() == 'Свободные места':
-        bot.send_message(message.chat.id, '1')
+    if message.text.strip() == 'Занятые места':
         df = pd.read_sql('SELECT * FROM info', engine)
         df = df[df['dttm'] > str(datetime.date.today().strftime("%d.%m.%Y"))]
-        bot.send_message(message.chat.id, df.shape[0])
+        # bot.send_message(message.chat.id, f"Количество занятых мест: {df.shape[0]}")
 
         for index, row in df.iterrows():
            bot.send_message(message.chat.id, f"{row['name']}, {row['dttm']}, {row['workplace']}")
@@ -107,7 +104,6 @@ def handle_text(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith(calendar_1_callback.prefix))
 def callback_inline(call: CallbackQuery):
-    global username
 
     name, action, year, month, day = call.data.split(calendar_1_callback.sep)
     date = calendar.calendar_query_handler(
@@ -129,7 +125,7 @@ def callback_inline(call: CallbackQuery):
         }
         data = pd.DataFrame({
             'id': [round(time.time())],
-            'name': [str(username)],
+            'name': [str(call.message.chat.first_name)],
             'dttm': [str(date.strftime('%d.%m.%Y'))],
             'workplace': ["1"]
         }).astype(dtypes)
