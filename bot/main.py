@@ -17,7 +17,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('token.ini')
 API_TOKEN = config['DEFAULT']['token']
-print(API_TOKEN)
+
 Base = declarative_base()
 logger = telebot.logger
 
