@@ -12,11 +12,15 @@ import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+import configparser
+
+config = configparser.ConfigParser()
+config.sections()
+config.read('token.ini')
+API_TOKEN = config['token']['token']
 
 Base = declarative_base()
-API_TOKEN = "5017249833:AAED1JhVzHOFOU4a6sR2_jXQR0MmNOQOjmY"
 logger = telebot.logger
-
 
 class User(Base):
     __tablename__ = 'info'
