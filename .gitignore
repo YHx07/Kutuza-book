@@ -2,4 +2,4 @@
 postgres-data
 venv
 data
-token.ini
+bot/token.ini

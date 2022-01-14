@@ -15,10 +15,9 @@ from sqlalchemy.ext.declarative import declarative_base
 import configparser
 
 config = configparser.ConfigParser()
-config.sections()
 config.read('token.ini')
-API_TOKEN = config['token']['token']
-
+API_TOKEN = config['DEFAULT']['token']
+print(API_TOKEN)
 Base = declarative_base()
 logger = telebot.logger
 
@@ -89,9 +88,10 @@ def handle_text(message):
 
     if message.text.strip() == 'Занятые места':
         df = pd.read_sql('SELECT * FROM info', engine)
-        df = df[df['dttm'] > str(datetime.date.today().strftime("%d.%m.%Y"))]
+        df = df[df['dttm'] >= str(datetime.date.today().strftime("%d.%m.%Y"))]
         # bot.send_message(message.chat.id, f"Количество занятых мест: {df.shape[0]}")
 
+        df = df.sort_values(by=['dttm'])
         for index, row in df.iterrows():
            bot.send_message(message.chat.id, f"{row['name']}, {row['dttm']}, {row['workplace']}")
 
