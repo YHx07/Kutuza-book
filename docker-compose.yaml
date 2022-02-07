@@ -15,6 +15,11 @@ services:
         build:
           context: ./dbcreator
           dockerfile: Dockerfile
+        healthcheck:
+          test: [ "CMD", "curl", "-f", "postgresql://postgres:postgres@db:5432/postgres" ]
+          interval: 1s
+          timeout: 3s
+          retries: 60
         container_name: dbcreator
         volumes:
           - ./data/:/data/
