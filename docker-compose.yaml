@@ -17,15 +17,22 @@ services:
           dockerfile: Dockerfile
         healthcheck:
           test: [ "CMD", "curl", "-f", "postgresql://postgres:postgres@db:5432/postgres" ]
-          interval: 1s
-          timeout: 3s
-          retries: 60
+          interval: 30s
+          timeout: 10s
+          retries: 5
+        deploy:
+          restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+            window: 120s
         container_name: dbcreator
         volumes:
           - ./data/:/data/
         command: python dbcreator.py
         depends_on:
           - db
+
 
     server:
         build:

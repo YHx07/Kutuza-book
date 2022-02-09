@@ -46,7 +46,7 @@ data = pd.read_csv(
     header=None,
     names=['id', 'name', 'dttm', 'workplace']
 )
-data.to_sql('info', engine, index=False, if_exists='append')
+data.to_sql('info', engine, index=False, if_exists='replace')
 
 print("Recorded csv to table in postgre........")
 

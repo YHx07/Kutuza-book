@@ -88,12 +88,16 @@ def handle_text(message):
 
     if message.text.strip() == 'Занятые места':
         df = pd.read_sql('SELECT * FROM info', engine)
-        df = df[df['dttm'] >= str(datetime.date.today().strftime("%d.%m.%Y"))]
-        # bot.send_message(message.chat.id, f"Количество занятых мест: {df.shape[0]}")
 
-        df = df.sort_values(by=['dttm'])
-        for index, row in df.iterrows():
-           bot.send_message(message.chat.id, f"{row['name']}, {row['dttm']}, {row['workplace']}")
+        today = datetime.date.today().strftime("%Y.%m.%d")
+        df = df.loc[pd.to_datetime(df['dttm'], format='%d.%m.%Y').dt.strftime('%Y.%m.%d') >= today]
+
+        if df.shape[0] > 0:
+            df = df.sort_values(by=['dttm'])
+            for index, row in df.iterrows():
+               bot.send_message(message.chat.id, f"{row['name']}, {row['dttm']}, {row['workplace']}")
+        else:
+            bot.send_message(message.chat.id, "Нет записей, все места свободны")
 
     elif message.text.strip() == 'Забронировать место':
         bot.send_message(
